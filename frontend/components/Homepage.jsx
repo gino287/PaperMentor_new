@@ -97,22 +97,7 @@ function KanbanColumn({ title, status = 'to-read', count = 0, children, onDrop }
   );
 }
 
-const INIT_PAPERS = {
-  'to-read': [
-    { id: 'p1', title: 'Mamba: Linear-Time Sequence Modeling with Selective State Spaces', authors: ['Gu', 'Dao'], year: 2023, category: 'cs.LG' },
-    { id: 'p2', title: 'Constitutional AI: Harmlessness from AI Feedback', authors: ['Bai', 'Jones', 'Ndousse'], year: 2022, category: 'cs.AI' },
-    { id: 'p3', title: 'Mixtral of Experts', authors: ['Jiang', 'Sablayrolles', 'Mensch'], year: 2024, category: 'cs.LG' },
-  ],
-  'reading': [
-    { id: 'p4', title: 'Scaling Laws for Neural Language Models', authors: ['Kaplan', 'McCandlish', 'Henighan'], year: 2020, category: 'cs.LG' },
-    { id: 'p5', title: 'Chain-of-Thought Prompting Elicits Reasoning in Large Language Models', authors: ['Wei', 'Wang', 'Schuurmans'], year: 2022, category: 'cs.AI' },
-  ],
-  'done': [
-    { id: 'p6', title: 'Attention Is All You Need', authors: ['Vaswani', 'Shazeer', 'Parmar'], year: 2017, category: 'cs.CL' },
-    { id: 'p7', title: 'BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding', authors: ['Devlin', 'Chang', 'Lee'], year: 2018, category: 'cs.CL' },
-    { id: 'p8', title: 'Language Models are Few-Shot Learners', authors: ['Brown', 'Mann', 'Ryder'], year: 2020, category: 'cs.LG' },
-  ],
-};
+const EMPTY_BOARD = { 'to-read': [], 'reading': [], 'done': [] };
 
 const COLS = [
   { id: 'to-read', title: 'To Read',  status: 'to-read' },
@@ -204,10 +189,23 @@ function SearchCTA({ onClick }) {
 
 /* ── App ── */
 function App() {
-  const [papers, setPapers] = React.useState(INIT_PAPERS);
+  const [papers, setPapers] = React.useState(EMPTY_BOARD);
+  const [savedCount, setSavedCount] = React.useState(0);
   const [showSearch, setShowSearch] = React.useState(false);
   const [showSaved,  setShowSaved]  = React.useState(false);
-  const savedCount = 12;
+
+  React.useEffect(() => {
+    fetch('/api/board')
+      .then(r => r.json())
+      .then(data => setPapers({
+        'to-read': data['to-read'] || [],
+        'reading':  data['reading']  || [],
+        'done':     data['done']     || [],
+      }));
+    fetch('/api/saved')
+      .then(r => r.json())
+      .then(data => setSavedCount(data.total || 0));
+  }, []);
 
   const movePaper = (paperId, toCol) => {
     setPapers(prev => {
@@ -222,6 +220,11 @@ function App() {
         [fromCol]: prev[fromCol].filter(p => p.id !== paperId),
         [toCol]:   [...prev[toCol], paper],
       };
+    });
+    fetch(`/api/board/papers/${paperId}/move`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ column: toCol }),
     });
   };
 

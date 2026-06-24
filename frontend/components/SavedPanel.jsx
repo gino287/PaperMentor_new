@@ -1,19 +1,5 @@
 // SavedPanel.jsx — right-side saved papers panel
 
-const SAVED_PAPERS = [
-  { id: 's1', title: 'Tree of Thoughts: Deliberate Problem Solving with Large Language Models', authors: ['Yao', 'Yu', 'Zhao'], year: 2023, category: 'cs.AI' },
-  { id: 's2', title: 'Reflexion: Language Agents with Verbal Reinforcement Learning', authors: ['Shinn', 'Cassano'], year: 2023, category: 'cs.AI' },
-  { id: 's3', title: 'LoRA: Low-Rank Adaptation of Large Language Models', authors: ['Hu', 'Shen', 'Wallis'], year: 2021, category: 'cs.LG' },
-  { id: 's4', title: 'Self-Consistency Improves Chain of Thought Reasoning in Language Models', authors: ['Wang', 'Wei', 'Schuurmans'], year: 2022, category: 'cs.CL' },
-  { id: 's5', title: 'Large Language Models are Zero-Shot Reasoners', authors: ['Kojima', 'Gu', 'Reid'], year: 2022, category: 'cs.CL' },
-  { id: 's6', title: 'Emergent Abilities of Large Language Models', authors: ['Wei', 'Tay', 'Bommasani'], year: 2022, category: 'cs.CL' },
-  { id: 's7', title: 'Denoising Diffusion Probabilistic Models', authors: ['Ho', 'Jain', 'Abbeel'], year: 2020, category: 'cs.LG' },
-  { id: 's8', title: 'Score-Based Generative Modeling through Stochastic Differential Equations', authors: ['Song', 'Sohl-Dickstein'], year: 2021, category: 'cs.LG' },
-  { id: 's9', title: 'In-Context Learning through the Bayesian Prism', authors: ['Xie', 'Raghunathan', 'Liang'], year: 2021, category: 'cs.LG' },
-  { id: 's10', title: 'Measuring and Narrowing the Compositionality Gap in Language Models', authors: ['Press', 'Zhang', 'Min'], year: 2022, category: 'cs.CL' },
-  { id: 's11', title: 'Toolformer: Language Models Can Teach Themselves to Use Tools', authors: ['Schick', 'Dwivedi-Yu'], year: 2023, category: 'cs.CL' },
-  { id: 's12', title: 'Direct Preference Optimization: Your Language Model is Secretly a Reward Model', authors: ['Rafailov', 'Sharma'], year: 2023, category: 'cs.LG' },
-];
 
 function SavedItem({ paper, onRemove }) {
   const [hov, setHov] = React.useState(false);
@@ -65,10 +51,15 @@ function SavedItem({ paper, onRemove }) {
 }
 
 function SavedPanel({ onClose }) {
-  const [papers, setPapers] = React.useState(SAVED_PAPERS);
+  const [papers, setPapers] = React.useState([]);
   const [mounted, setMounted] = React.useState(false);
 
-  React.useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
+  React.useEffect(() => {
+    requestAnimationFrame(() => setMounted(true));
+    fetch('/api/saved')
+      .then(r => r.json())
+      .then(data => setPapers(data.papers || []));
+  }, []);
 
   return (
     <>
@@ -116,25 +107,41 @@ function SavedPanel({ onClose }) {
             <SavedItem
               key={p.id}
               paper={p}
-              onRemove={() => setPapers(prev => prev.filter(x => x.id !== p.id))}
+              onRemove={() => {
+                fetch(`/api/saved/${p.id}`, { method: 'DELETE' });
+                setPapers(prev => prev.filter(x => x.id !== p.id));
+              }}
             />
           ))}
         </div>
 
         {/* Footer */}
         <div style={{ padding: '12px 18px', borderTop: '1px solid #e0dbd0', display: 'flex', gap: 8 }}>
-          <button style={{
-            flex: 1, background: '#d4552a', color: '#fff', border: 'none', borderRadius: 3,
-            padding: 9, fontFamily: "'IBM Plex Mono',monospace", fontSize: '0.6875rem',
-            fontWeight: 500, letterSpacing: '.08em', textTransform: 'uppercase', cursor: 'pointer',
-          }}>
+          <button
+            onClick={() => {
+              fetch('/api/saved/add-all-to-board', { method: 'POST' })
+                .then(r => r.json())
+                .then(() => onClose());
+            }}
+            style={{
+              flex: 1, background: '#d4552a', color: '#fff', border: 'none', borderRadius: 3,
+              padding: 9, fontFamily: "'IBM Plex Mono',monospace", fontSize: '0.6875rem',
+              fontWeight: 500, letterSpacing: '.08em', textTransform: 'uppercase', cursor: 'pointer',
+            }}
+          >
             Add All to Board
           </button>
-          <button style={{
-            background: 'transparent', color: '#a8a29e', border: '1px solid #ddd8d2',
-            borderRadius: 3, padding: '9px 14px', fontFamily: "'IBM Plex Mono',monospace",
-            fontSize: '0.6875rem', letterSpacing: '.05em', textTransform: 'uppercase', cursor: 'pointer',
-          }}>
+          <button
+            onClick={() => {
+              Promise.all(papers.map(p => fetch(`/api/saved/${p.id}`, { method: 'DELETE' })))
+                .then(() => setPapers([]));
+            }}
+            style={{
+              background: 'transparent', color: '#a8a29e', border: '1px solid #ddd8d2',
+              borderRadius: 3, padding: '9px 14px', fontFamily: "'IBM Plex Mono',monospace",
+              fontSize: '0.6875rem', letterSpacing: '.05em', textTransform: 'uppercase', cursor: 'pointer',
+            }}
+          >
             Clear
           </button>
         </div>

@@ -74,11 +74,24 @@ function SearchModal({ onClose, onAddToBoard }) {
     setTimeout(() => { setResults(MOCK_RESULTS); setSearching(false); }, 680);
   };
 
-  const toggleSave = id => setSaved(prev => {
-    const next = new Set(prev);
-    next.has(id) ? next.delete(id) : next.add(id);
-    return next;
-  });
+  const toggleSave = paper => {
+    const alreadySaved = saved.has(paper.id);
+    setSaved(prev => {
+      const next = new Set(prev);
+      alreadySaved ? next.delete(paper.id) : next.add(paper.id);
+      return next;
+    });
+    if (!alreadySaved) {
+      fetch('/api/saved', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: paper.id, title: paper.title,
+          authors: paper.authors, year: paper.year, category: paper.category,
+        }),
+      });
+    }
+  };
 
   return (
     <div
@@ -140,7 +153,7 @@ function SearchModal({ onClose, onAddToBoard }) {
           ) : results.length > 0 ? (
             <div>
               {results.map(p => (
-                <SearchResult key={p.id} paper={p} saved={saved.has(p.id)} onSave={() => toggleSave(p.id)} />
+                <SearchResult key={p.id} paper={p} saved={saved.has(p.id)} onSave={() => toggleSave(p)} />
               ))}
             </div>
           ) : (
