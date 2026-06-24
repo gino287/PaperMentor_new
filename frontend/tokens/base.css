@@ -1,0 +1,35 @@
+/* PaperMentor — Base Reset */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-base, #f5f0e8);
+  color: var(--fg-primary, #1c1917);
+  font-family: var(--font-body, system-ui, sans-serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-wrap: pretty;
+}
+
+a {
+  color: var(--link, #c2421e);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--link-hover, #9e3516);
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}

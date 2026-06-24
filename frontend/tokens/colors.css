@@ -1,0 +1,79 @@
+/* PaperMentor — Color Tokens */
+
+:root {
+
+  /* ─────────────────────────────────────────
+     BASE PALETTE
+  ───────────────────────────────────────── */
+
+  /* Ink — deep warm charcoal. Primary text, nav, UI chrome. */
+  --color-ink-950: #0d0b09;
+  --color-ink-900: #1c1917;
+  --color-ink-800: #292524;
+  --color-ink-700: #3d3935;
+  --color-ink-600: #544f4a;
+  --color-ink-500: #78716c;
+  --color-ink-400: #a8a29e;
+  --color-ink-300: #c9c4be;
+  --color-ink-200: #ddd8d2;
+  --color-ink-100: #f0ece7;
+
+  /* Paper — warm parchment neutrals. Backgrounds, columns, card surfaces. */
+  --color-paper-50:  #fdfbf7;
+  --color-paper-100: #f5f0e8;
+  --color-paper-200: #ece7dd;
+  --color-paper-300: #e0dbd0;
+  --color-paper-400: #cfc9bc;
+  --color-paper-500: #bcb6a8;
+
+  /* Sienna — burnt terracotta accent. CTAs, card left borders, reading indicators. */
+  --color-sienna-900: #5c1c0a;
+  --color-sienna-800: #7c2a10;
+  --color-sienna-700: #9e3516;
+  --color-sienna-600: #c2421e;
+  --color-sienna-500: #d4552a;
+  --color-sienna-400: #e07250;
+  --color-sienna-300: #ea9678;
+  --color-sienna-200: #f5bfab;
+  --color-sienna-100: #fde8e0;
+  --color-sienna-50:  #fff4f0;
+
+  /* ─────────────────────────────────────────
+     SEMANTIC ALIASES
+  ───────────────────────────────────────── */
+
+  /* Backgrounds */
+  --bg-base:     var(--color-paper-100);
+  --bg-surface:  var(--color-paper-200);
+  --bg-elevated: var(--color-paper-50);
+  --bg-sunken:   var(--color-paper-300);
+  --bg-inverse:  var(--color-ink-900);
+  --bg-accent:   var(--color-sienna-500);
+
+  /* Foregrounds */
+  --fg-primary:    var(--color-ink-900);
+  --fg-secondary:  var(--color-ink-500);
+  --fg-muted:      var(--color-ink-400);
+  --fg-disabled:   var(--color-ink-300);
+  --fg-inverse:    var(--color-paper-50);
+  --fg-accent:     var(--color-sienna-500);
+  --fg-on-accent:  #ffffff;
+  --fg-on-inverse: var(--color-paper-100);
+
+  /* Borders */
+  --border-subtle:  var(--color-paper-400);
+  --border-default: var(--color-ink-200);
+  --border-strong:  var(--color-ink-300);
+  --border-accent:  var(--color-sienna-500);
+  --border-inverse: rgba(255, 255, 255, 0.12);
+
+  /* Interactive */
+  --focus-ring: rgba(28, 25, 23, 0.07);
+  --link:       var(--color-sienna-600);
+  --link-hover: var(--color-sienna-700);
+
+  /* Kanban status colors */
+  --status-to-read: var(--color-ink-400);
+  --status-reading: var(--color-sienna-500);
+  --status-done:    var(--color-ink-600);
+}
