@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .database import engine
 from .models import Base
-from .routers import board, saved
+from .routers import board, saved, search
 from . import seed
 
 
@@ -19,8 +19,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="PaperMentor API", lifespan=lifespan)
 
-app.include_router(board.router, prefix="/api/board", tags=["board"])
-app.include_router(saved.router, prefix="/api/saved", tags=["saved"])
+app.include_router(board.router,   prefix="/api/board",   tags=["board"])
+app.include_router(saved.router,   prefix="/api/saved",   tags=["saved"])
+app.include_router(search.router,  prefix="/api/papers",  tags=["search"])
 
 FRONTEND = pathlib.Path(__file__).parent.parent / "frontend"
 app.mount("/", StaticFiles(directory=str(FRONTEND), html=True), name="frontend")

@@ -1,13 +1,5 @@
 // SearchModal.jsx — arXiv search overlay
 
-const MOCK_RESULTS = [
-  { id: 'r1', title: 'Transformers are RNNs: Fast Autoregressive Transformers with Linear Attention', authors: ['Katharopoulos', 'Vyas', 'Pappas'], year: 2020, category: 'cs.LG' },
-  { id: 'r2', title: 'FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning', authors: ['Dao'], year: 2023, category: 'cs.LG' },
-  { id: 'r3', title: 'Toolformer: Language Models Can Teach Themselves to Use Tools', authors: ['Schick', 'Dwivedi-Yu', 'Dessì'], year: 2023, category: 'cs.CL' },
-  { id: 'r4', title: 'Direct Preference Optimization: Your Language Model is Secretly a Reward Model', authors: ['Rafailov', 'Sharma', 'Mitchell'], year: 2023, category: 'cs.LG' },
-  { id: 'r5', title: 'Voyager: An Open-Ended Embodied Agent with Large Language Models', authors: ['Wang', 'Xie', 'Jiang'], year: 2023, category: 'cs.AI' },
-  { id: 'r6', title: 'LoRA: Low-Rank Adaptation of Large Language Models', authors: ['Hu', 'Shen', 'Wallis'], year: 2021, category: 'cs.LG' },
-];
 
 function SearchResult({ paper, saved, onSave }) {
   const [hov, setHov] = React.useState(false);
@@ -71,7 +63,10 @@ function SearchModal({ onClose, onAddToBoard }) {
   const search = () => {
     if (!query.trim()) return;
     setSearching(true);
-    setTimeout(() => { setResults(MOCK_RESULTS); setSearching(false); }, 680);
+    fetch(`/api/papers/search?q=${encodeURIComponent(query.trim())}`)
+      .then(r => r.json())
+      .then(data => { setResults(data.results || []); setSearching(false); })
+      .catch(() => setSearching(false));
   };
 
   const toggleSave = paper => {

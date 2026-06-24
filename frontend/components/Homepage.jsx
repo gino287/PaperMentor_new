@@ -4,7 +4,7 @@ const SearchModal = window.SearchModal;
 const SavedPanel  = window.SavedPanel;
 
 /* ── PaperCard ── */
-function PaperCard({ title, authors = [], year = null, category = null, draggable = true, onDragStart, onDragEnd, onClick, selected = false }) {
+function PaperCard({ title, authors = [], year = null, category = null, draggable = true, onDragStart, onDragEnd, onClick, selected = false, onDelete }) {
   const [hovered, setHovered] = React.useState(false);
   const [dragging, setDragging] = React.useState(false);
   const borderColor = selected ? '#c2421e' : '#d4552a';
@@ -25,6 +25,7 @@ function PaperCard({ title, authors = [], year = null, category = null, draggabl
       onMouseLeave={() => setHovered(false)}
       onClick={onClick}
       style={{
+        position: 'relative',
         background: '#fdfbf7',
         borderLeft: `3px solid ${borderColor}`,
         borderTop: 'none', borderRight: 'none', borderBottom: 'none',
@@ -36,7 +37,24 @@ function PaperCard({ title, authors = [], year = null, category = null, draggabl
         opacity: dragging ? 0.88 : 1,
       }}
     >
-      <p style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: '0.8125rem', fontWeight: 400, color: '#1c1917', lineHeight: 1.4, margin: '0 0 8px' }}>
+      {onDelete && hovered && (
+        <button
+          onClick={e => { e.stopPropagation(); onDelete(); }}
+          style={{
+            position: 'absolute', top: 6, right: 6,
+            background: 'none', border: 'none', padding: 2,
+            cursor: 'pointer', color: '#c9c4be', display: 'flex',
+            borderRadius: 2, transition: 'color 100ms ease',
+          }}
+          onMouseEnter={e => e.currentTarget.style.color = '#78716c'}
+          onMouseLeave={e => e.currentTarget.style.color = '#c9c4be'}
+        >
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+            <line x1="2" y1="2" x2="8" y2="8"/><line x1="8" y1="2" x2="2" y2="8"/>
+          </svg>
+        </button>
+      )}
+      <p style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: '0.8125rem', fontWeight: 400, color: '#1c1917', lineHeight: 1.4, margin: '0 0 8px', paddingRight: onDelete ? 16 : 0 }}>
         {title}
       </p>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
@@ -207,6 +225,16 @@ function App() {
       .then(data => setSavedCount(data.total || 0));
   }, []);
 
+  const deletePaper = (paperId) => {
+    setPapers(prev => {
+      const next = {};
+      for (const [col, list] of Object.entries(prev))
+        next[col] = list.filter(p => p.id !== paperId);
+      return next;
+    });
+    fetch(`/api/board/papers/${paperId}`, { method: 'DELETE' });
+  };
+
   const movePaper = (paperId, toCol) => {
     setPapers(prev => {
       let paper = null, fromCol = null;
@@ -269,6 +297,7 @@ function App() {
                     year={p.year}
                     category={p.category}
                     onDragStart={e => e.dataTransfer.setData('text/plain', p.id)}
+                    onDelete={() => deletePaper(p.id)}
                   />
                 ))}
               </KanbanColumn>
